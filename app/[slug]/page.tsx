@@ -7,6 +7,8 @@ import { siteDescription, siteTitle } from "@/lib/sites/display";
 import { getPublicSite } from "@/lib/sites/queries";
 import { parseConfig } from "@/lib/sites/schema";
 import { isValidSlug } from "@/lib/sites/slug";
+import { rsvpOpen } from "@/lib/rsvp/open";
+import { submitRsvp } from "./actions";
 
 // Always render on request: RLS decides per viewer whether a draft is visible.
 export const dynamic = "force-dynamic";
@@ -48,11 +50,19 @@ export default async function SitePage({ params }: PageProps<"/[slug]">) {
   if (!site) notFound();
 
   const config = parseConfig(site.config);
+  const rsvp = { enabled: site.rsvp_enabled, closed: !rsvpOpen(site) };
 
   return (
     <>
       {!site.published ? <DraftRibbon siteId={site.id} /> : null}
-      <Invitation config={config} slug={site.slug} mode="live" siteUrl={siteUrl()} />
+      <Invitation
+        config={config}
+        slug={site.slug}
+        mode="live"
+        siteUrl={siteUrl()}
+        rsvp={rsvp}
+        submitRsvp={submitRsvp.bind(null, site.slug)}
+      />
     </>
   );
 }

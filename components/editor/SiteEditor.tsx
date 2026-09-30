@@ -7,6 +7,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { deleteSite, saveSite } from "@/app/dashboard/sites/[id]/actions";
 import { Invitation } from "@/components/invitation/Invitation";
 import { Button, Field, Input, Section, Select, Textarea, cls } from "@/components/ui";
+import { rsvpOpen } from "@/lib/rsvp/open";
 import { SiteConfigSchema, SiteFormSchema, type SiteConfig, type SiteFormValues } from "@/lib/sites/schema";
 import { ColorField, DeadlineField, EventDateTimeField, SlugField, YouTubeField } from "./fields";
 import { PreviewFrame } from "./PreviewFrame";
@@ -48,6 +49,8 @@ export function SiteEditor({ site, siteUrl }: SiteEditorProps) {
   const previewConfig = parsed.success ? parsed.data : lastGood;
 
   const [previewOpen, setPreviewOpen] = useState(true);
+  // Captured once so render stays pure; good enough for a "deadline passed" preview.
+  const [openedAt] = useState(() => Date.now());
   const [previewKey, setPreviewKey] = useState(0);
   const [pending, startTransition] = useTransition();
   const [status, setStatus] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
@@ -315,6 +318,17 @@ export function SiteEditor({ site, siteUrl }: SiteEditorProps) {
               mode="preview"
               defaultOpen={previewOpen}
               siteUrl={siteUrl}
+              rsvp={{
+                enabled: Boolean(watched.rsvpEnabled),
+                closed: !rsvpOpen(
+                  {
+                    published: true,
+                    rsvp_enabled: true,
+                    rsvp_deadline: watched.rsvpDeadline ?? null,
+                  },
+                  openedAt,
+                ),
+              }}
             />
           </PreviewFrame>
           {!parsed.success ? (

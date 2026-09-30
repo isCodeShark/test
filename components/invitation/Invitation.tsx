@@ -5,8 +5,12 @@ import { icsDataUrl } from "@/lib/ics/build-ics";
 import { dateText } from "@/lib/sites/display";
 import { siteIcs } from "@/lib/sites/event";
 import type { SiteConfig } from "@/lib/sites/schema";
+import type { RsvpAction } from "@/lib/rsvp/schema";
+import { BackgroundMusic, MusicPlaceholder } from "./BackgroundMusic";
 import { fireConfetti } from "./confetti";
+import { RsvpDialog } from "./RsvpDialog";
 import { EnvelopeTemplate } from "./templates/envelope/EnvelopeTemplate";
+import styles from "./templates/envelope/Envelope.module.css";
 
 export type InvitationProps = {
   config: SiteConfig;
@@ -17,10 +21,23 @@ export type InvitationProps = {
   defaultOpen?: boolean;
   /** Origin used for the .ics link and description on the live page. */
   siteUrl?: string;
+  /** RSVP availability; omit to hide the RSVP button entirely. */
+  rsvp?: { enabled: boolean; closed: boolean };
+  /** Server action bound to the slug (live page only). */
+  submitRsvp?: RsvpAction;
 };
 
-export function Invitation({ config, slug, mode, defaultOpen = false, siteUrl = "" }: InvitationProps) {
+export function Invitation({
+  config,
+  slug,
+  mode,
+  defaultOpen = false,
+  siteUrl = "",
+  rsvp,
+  submitRsvp,
+}: InvitationProps) {
   const [open, setOpen] = useState(defaultOpen);
+  const [rsvpOpen, setRsvpOpen] = useState(false);
 
   const handleOpen = useCallback(() => {
     if (open) return;
@@ -48,6 +65,29 @@ export function Invitation({ config, slug, mode, defaultOpen = false, siteUrl = 
     }
   }, [mode, slug, config, siteUrl]);
 
+  const rsvpSlot = rsvp?.enabled ? (
+    rsvp.closed ? (
+      <p className={styles.rsvpClosed}>RSVPs are closed</p>
+    ) : (
+      <button
+        type="button"
+        className={styles.rsvpButton}
+        onClick={() => setRsvpOpen(true)}
+        tabIndex={open ? 0 : -1}
+      >
+        RSVP
+      </button>
+    )
+  ) : null;
+
+  const controls = config.music.youtubeId ? (
+    mode === "live" ? (
+      <BackgroundMusic youtubeId={config.music.youtubeId} volume={config.music.volume} />
+    ) : (
+      <MusicPlaceholder />
+    )
+  ) : null;
+
   return (
     <EnvelopeTemplate
       config={config}
@@ -56,6 +96,18 @@ export function Invitation({ config, slug, mode, defaultOpen = false, siteUrl = 
       mode={mode}
       icsHref={dateText(config) ? icsHref : ""}
       icsFilename={icsFilename}
-    />
+      rsvpSlot={rsvpSlot}
+      controls={controls}
+    >
+      {rsvp?.enabled && !rsvp.closed ? (
+        <RsvpDialog
+          open={rsvpOpen}
+          onClose={() => setRsvpOpen(false)}
+          config={config}
+          slug={slug}
+          action={mode === "live" ? submitRsvp : undefined}
+        />
+      ) : null}
+    </EnvelopeTemplate>
   );
 }

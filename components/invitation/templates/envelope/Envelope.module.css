@@ -46,7 +46,8 @@
   overflow: hidden; /* Hard clip to viewport — no scrolling */
 }
 
-.stage * {
+/* Zero-specificity reset so any classed element (e.g. the RSVP dialog) can override it. */
+.stage :where(*) {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -435,6 +436,69 @@ a.venue:focus-visible {
   z-index: 10;
   display: flex;
   gap: 8px;
+}
+
+.musicButton {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--gold-60);
+  background: color-mix(in srgb, var(--shell-color) 85%, transparent);
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+  transition: transform 0.2s ease, background 0.2s ease;
+  animation: musicIn 0.6s ease 1.5s both;
+}
+
+.musicButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: var(--shell-color);
+}
+
+.musicButton:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.musicButton:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.musicButton[data-state="playing"] {
+  animation: musicIn 0.6s ease 1.5s both, musicPulse 2.4s ease-in-out 2.1s infinite;
+}
+
+@keyframes musicIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes musicPulse {
+  0%,
+  100% {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+  }
+  50% {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35), 0 0 0 6px var(--gold-30);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .musicButton,
+  .musicButton[data-state="playing"] {
+    animation: none;
+  }
 }
 
 /* --- RESPONSIVE ADJUSTMENTS --- */
