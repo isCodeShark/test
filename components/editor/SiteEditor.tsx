@@ -93,7 +93,7 @@ export function SiteEditor({ site, siteUrl }: SiteEditorProps) {
   };
 
   return (
-    <form onSubmit={onSubmit} className="pb-24">
+    <div className="pb-24">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <Link href="/dashboard" className="text-sm text-stone-500 hover:text-stone-800">
@@ -120,7 +120,8 @@ export function SiteEditor({ site, siteUrl }: SiteEditorProps) {
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_420px]">
-        <div className="space-y-6">
+        {/* The preview lives outside this form because the RSVP dialog contains its own form. */}
+        <form id="site-editor" onSubmit={onSubmit} className="space-y-6">
           <Section title="Names and wording">
             <Field label="Opening line" htmlFor="opener-mode">
               <div className="grid gap-3 sm:grid-cols-[180px_1fr]">
@@ -280,7 +281,7 @@ export function SiteEditor({ site, siteUrl }: SiteEditorProps) {
               Delete invitation
             </Button>
           </Section>
-        </div>
+        </form>
 
         <aside className="lg:sticky lg:top-6 lg:self-start">
           <div className="mb-3 flex items-center justify-between">
@@ -361,12 +362,12 @@ export function SiteEditor({ site, siteUrl }: SiteEditorProps) {
                 Open live
               </a>
             ) : null}
-            <Button type="submit" disabled={pending || !isDirty}>
+            <Button type="submit" form="site-editor" disabled={pending || !isDirty}>
               {pending ? "Saving…" : published && !site.published ? "Save and publish" : "Save changes"}
             </Button>
           </div>
         </div>
       </div>
-    </form>
+    </div>
   );
 }
