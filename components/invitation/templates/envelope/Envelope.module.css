@@ -1,0 +1,457 @@
+/*
+ * Port of Reference/style.css. Kept as close to the original as possible.
+ * Deliberate changes:
+ *  - `body` rules live on `.stage` so the template can render inside the editor.
+ *  - `.stage` is a size container; vw/dvh units became cqw/cqh so the envelope
+ *    scales to the viewport on the live page and to its frame in the preview.
+ *  - Colors come from CSS variables set inline from the site's theme; the
+ *    original hard-coded shades are derived with color-mix().
+ *  - Fonts come from next/font variables set on <html>.
+ */
+
+.stage {
+  /* Theme tokens (overridden inline from config.theme) */
+  --bg-color: #faf9f6;
+  --accent-color: #800000;
+  --gold: #d4af37;
+  --text-color: #800000;
+
+  --wax-seal-img: url("/assets/cohesive_wax_seal-removebg-preview.png");
+  --vellum-lace-img: url("/assets/golden_pattern_sparse.png");
+
+  --font-heading: var(--font-great-vibes), cursive;
+  --font-ampersand: var(--font-fleur-de-leah), cursive;
+  --font-script: var(--font-pinyon-script), cursive;
+  --font-body: var(--font-cormorant-garamond), "Cormorant Garamond", serif;
+
+  --vignette-inner: color-mix(in srgb, var(--accent-color) 70%, black);
+  --vignette-outer: color-mix(in srgb, var(--accent-color) 20%, black);
+  --shell-color: color-mix(in srgb, var(--accent-color) 45%, black);
+  --gold-40: color-mix(in srgb, var(--gold) 40%, transparent);
+  --gold-30: color-mix(in srgb, var(--gold) 30%, transparent);
+  --gold-60: color-mix(in srgb, var(--gold) 60%, transparent);
+
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  max-height: 100dvh;
+  container-type: size;
+  background-color: var(--vignette-outer);
+  background-image: radial-gradient(circle at center, var(--vignette-inner) 0%, var(--vignette-outer) 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: var(--font-body);
+  color: var(--text-color);
+  overflow: hidden; /* Hard clip to viewport — no scrolling */
+}
+
+.stage * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Inside the editor the frame decides the size. */
+.stagePreview {
+  height: 100%;
+  max-height: 100%;
+}
+
+.container {
+  perspective: 1200px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.instruction {
+  position: absolute;
+  bottom: calc(100% + 14px); /* Float above the envelope without affecting centering */
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-style: italic;
+  color: #555;
+  letter-spacing: 1px;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+
+.open ~ .instruction,
+.instructionHidden {
+  opacity: 0;
+}
+
+/* ENVELOPE BASE */
+.envelopeWrapper {
+  position: relative;
+  width: min(90cqw, 450px);
+  aspect-ratio: 5 / 7;
+  max-height: 85cqh;
+  cursor: pointer;
+  transition: transform 0.5s ease;
+}
+
+.envelopeWrapper:hover {
+  transform: translateY(-5px);
+}
+
+.envelope {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  transform-style: preserve-3d;
+}
+
+.envelopeBack {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: var(--shell-color); /* Darker outer shell behind the card */
+  border-radius: 4px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+}
+
+/* WEDDING CARD */
+.card {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-color);
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+  z-index: 2;
+  transition: transform 2.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-delay: 1.2s;
+  border: 2px solid var(--gold-30);
+}
+
+.cardContent {
+  width: 100%;
+  height: 100%;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  opacity: 1;
+  transition: opacity 1s 0.2s;
+  z-index: 1;
+}
+
+.bismillah {
+  font-size: 1.5rem;
+  color: var(--accent-color);
+  line-height: 1;
+  margin-bottom: 20px;
+  font-weight: normal;
+}
+
+.headerText p:first-child {
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent-color);
+  margin-bottom: 5px;
+  opacity: 1;
+}
+
+.names {
+  margin: 15px 0 20px 0;
+}
+
+.names h1 {
+  font-family: var(--font-heading);
+  color: var(--accent-color);
+  font-size: 2.3rem;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: normal;
+  margin-bottom: 5px;
+}
+
+.ampersand {
+  font-family: var(--font-ampersand);
+  font-size: 1.6rem;
+  color: var(--gold);
+  margin: 10px 0;
+  line-height: 1;
+}
+
+.parentText {
+  font-size: 0.8rem;
+  color: var(--accent-color);
+  opacity: 0.9;
+  margin-top: 5px;
+  margin-bottom: 2px;
+  font-style: italic;
+}
+
+.detailsSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.date,
+.time {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 2px;
+  color: var(--accent-color);
+  text-transform: uppercase;
+  margin: 0;
+}
+
+/* The date is a download link for the .ics file */
+a.date {
+  text-decoration: none;
+  border-bottom: 1px dotted var(--gold-60);
+  cursor: pointer;
+}
+
+a.date:hover,
+a.date:focus-visible {
+  border-bottom-style: solid;
+  outline: none;
+}
+
+.separatorLine {
+  width: 50px;
+  height: 1px;
+  background-color: var(--gold-60);
+  margin: 2px 0;
+}
+
+.venue {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  text-align: center;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* The venue block links to the map */
+a.venue:hover .venueName,
+a.venue:focus-visible .venueName {
+  text-decoration: underline;
+  text-decoration-color: var(--gold);
+  text-underline-offset: 3px;
+}
+
+a.venue:focus-visible {
+  outline: none;
+}
+
+.venueName {
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--accent-color);
+  font-size: 0.8rem;
+}
+
+.venueAddress {
+  font-size: 0.75rem;
+  color: var(--accent-color);
+  opacity: 0.85;
+  letter-spacing: 1px;
+}
+
+/* RSVP call to action, styled like the details text */
+.rsvpButton {
+  margin-top: 4px;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--bg-color);
+  background: var(--accent-color);
+  border: 1px solid var(--gold-60);
+  border-radius: 999px;
+  padding: 8px 22px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.rsvpButton:hover,
+.rsvpButton:focus-visible {
+  background: color-mix(in srgb, var(--accent-color) 85%, black);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.rsvpButton:disabled {
+  cursor: default;
+  opacity: 0.7;
+  transform: none;
+}
+
+.rsvpClosed {
+  margin-top: 4px;
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent-color);
+  opacity: 0.7;
+}
+
+/* --- GOLDEN LASER-CUT GATEFOLD DOORS --- */
+.cardCover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--bg-color);
+  z-index: 2;
+  transition: opacity 2s ease 0.6s;
+  border-radius: 8px;
+}
+
+.gates {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 4;
+  transform-style: preserve-3d;
+  perspective: 1500px;
+}
+
+.gate {
+  position: absolute;
+  top: 0;
+  width: calc(50% + 0.5px);
+  height: 100%;
+  pointer-events: auto;
+  background-color: transparent;
+  background-image: var(--vellum-lace-img);
+  background-size: 300px;
+  transition: transform 3s cubic-bezier(0.25, 1, 0.5, 1);
+  backface-visibility: hidden;
+}
+
+.leftGate {
+  left: 0;
+  transform-origin: left center;
+  border-right: 1px solid var(--gold-40);
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+.rightGate {
+  right: 0;
+  transform-origin: right center;
+  background-position: 50px 0;
+  border-left: 1px solid var(--gold-40);
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+/* GOLDEN CLASP / SEAL */
+.waxSeal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 130px;
+  height: 130px;
+  background-image: var(--wax-seal-img);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: 6;
+  pointer-events: auto;
+  transition: opacity 0.4s ease, transform 0.3s ease;
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.5));
+}
+
+.envelopeWrapper:hover .waxSeal {
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+/* --- ANIMATION STATES (OPENING) --- */
+.envelopeWrapper.open {
+  cursor: default;
+}
+
+.envelopeWrapper.open:hover {
+  transform: translateY(0);
+}
+
+.envelopeWrapper.open .waxSeal {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.2s ease;
+}
+
+.envelopeWrapper.open .cardCover {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.envelopeWrapper.open .leftGate {
+  transform: translateX(-88%);
+  pointer-events: none;
+}
+
+.envelopeWrapper.open .rightGate {
+  transform: translateX(88%);
+  pointer-events: none;
+}
+
+.envelopeWrapper.open .card {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Floating controls (music toggle) */
+.controls {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 10;
+  display: flex;
+  gap: 8px;
+}
+
+/* --- RESPONSIVE ADJUSTMENTS --- */
+@container (max-width: 400px) {
+  .names h1 {
+    font-size: 2.5rem;
+  }
+  .ampersand {
+    font-size: 1.2rem;
+  }
+  .parentText {
+    font-size: 0.7rem;
+  }
+  .details .date,
+  .time,
+  .venueName,
+  .venueAddress {
+    font-size: 0.7rem;
+  }
+}

@@ -11,7 +11,7 @@ export type LoginState =
   | { status: "error"; message: string };
 
 const LoginInput = z.object({
-  email: z.string().trim().email("Enter a valid email address."),
+  email: z.email("Enter a valid email address."),
   next: z.string().optional(),
 });
 
