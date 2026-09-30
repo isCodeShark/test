@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { buildIcs, icsDataUrl } from "@/lib/ics/build-ics";
-import { coupleNames, dateText, siteDescription } from "@/lib/sites/display";
+import { icsDataUrl } from "@/lib/ics/build-ics";
+import { dateText } from "@/lib/sites/display";
+import { siteIcs } from "@/lib/sites/event";
 import type { SiteConfig } from "@/lib/sites/schema";
 import { fireConfetti } from "./confetti";
 import { EnvelopeTemplate } from "./templates/envelope/EnvelopeTemplate";
@@ -34,14 +35,12 @@ export function Invitation({ config, slug, mode, defaultOpen = false, siteUrl = 
   const icsHref = useMemo(() => {
     if (mode === "live") return `/${slug}/event.ics`;
     try {
-      const ics = buildIcs({
+      const ics = siteIcs({
         uid: `preview-${slug || "site"}@wedding-invites`,
-        title: `${coupleNames(config)} - ${config.headerLine.trim() || "Wedding"}`.trim(),
-        description: siteDescription(config),
-        location: [config.venue.name, config.venue.address].filter((s) => s.trim()).join(", "),
+        config,
         url: siteUrl ? `${siteUrl}/${slug}` : undefined,
-        startsAt: config.event.startsAt,
-        durationMinutes: config.event.durationMinutes,
+        // Deterministic so server and client render the same data URL.
+        dtstamp: new Date(config.event.startsAt),
       });
       return icsDataUrl(ics);
     } catch {
